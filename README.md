@@ -30,6 +30,8 @@ Create a .env file in the root directory:
 DEEPSEEK_API_KEY=your_deepseek_api_key_here
 ```
 
+I have used DeepSeek because I had previously used it in one of my projects and got good results and also had some credits leftover.
+
 ### 4. Run Ingestion Pipeline
 The six raw 10-K documents I downloaded from the EDGAR website were these - 
 * **Apple Inc. (AAPL):** Fiscal year ended September 27, 2025 (`aapl-20250927.pdf`)
