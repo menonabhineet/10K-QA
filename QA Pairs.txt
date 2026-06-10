@@ -1,0 +1,162 @@
+-------------------------------------------
+Single-Fact Lookups (Table & Text Reading)
+-------------------------------------------
+
+I set UI dropdown to the specific company for these tests.
+1. What was Apple's total net sales for fiscal year 2025?
+- Based solely on the provided excerpts from Apple’s 2025 Form 10-K, Apple’s total net sales for fiscal year 2025 were $416,161 million. This figure is found in the net sales table in both Source 1 and Source 3.
+
+2. What was NVIDIA's total revenue for fiscal year 2026?
+- Based on the provided 10-K filing for NVIDIA (NVDA), the total revenue for the fiscal year ended January 25, 2026, was $215,938 million.
+Source: NVDA 10-K filing (nvda-20260125.pdf), Consolidated Statements of Income, Year Ended Jan 25, 2026.
+
+3. What was Walmart's total revenue for fiscal year 2026?
+- Walmart's total revenue for fiscal year 2026 (ended January 31, 2026) was **713,163 million**. This figure comes from the consolidated statements of income, which report total revenues of 713,163 million for fiscal 2026.
+
+4. How many weeks were in Apple's 2025 fiscal year?
+- Apple's fiscal year 2025 spanned 52 weeks. This is stated in the context:
+
+"The Company’s fiscal years 2025 and 2024 spanned 52 weeks each, whereas fiscal year 2023 spanned 53 weeks." (Source 1, Source 4)
+
+5. Did Apple's "Wearables, Home and Accessories" net sales increase or decrease from 2024 to 2025?
+- Based on the provided 10-K filing for Apple Inc. (AAPL), net sales for the "Wearables, Home and Accessories" category decreased from 2024 to 2025.
+
+This is supported by the data in the net sales table, which shows a 4% decline from 37,005 million in 2024 to 35,686 million in 2025, and the accompanying text explicitly states the decrease was due to lower net sales of Accessories and Wearables [Source 1].
+
+6. According to Coca-Cola's 10-K, what are their primary risk factors related to water scarcity?
+- Based solely on the provided 10-K filing for Coca-Cola (KO), the primary risk factors related to water scarcity are:
+
+Increased costs and capacity constraints: Water is a main ingredient and vital for agricultural ingredients and manufacturing. As water becomes scarcer and its quality deteriorates, the Coca-Cola system may incur higher costs or face capacity constraints and the possibility of reputational damage, which could adversely affect profitability. (Source 1, Source 4)
+
+Negative impact from climate change: Climate change may exacerbate extreme weather, resulting in water scarcity or flooding and further deterioration of water quality, which could limit water availability for the Coca-Cola system’s bottling operations. (Source 2)
+
+Operational and supply chain disruptions: Increased frequency or duration of extreme weather conditions could impair production capabilities, disrupt the supply chain, or impact demand for products. (Source 2)
+
+Potential regulatory and compliance burdens: Ongoing concern over climate change may result in additional legal or regulatory requirements to reduce greenhouse gas emissions, which could increase energy or compliance costs and cause disruptions in manufacturing and distribution. (Source 2)
+
+These risk factors are consistently highlighted across multiple sections of the filing, emphasizing water scarcity as a key challenge to the business.
+
+7. How does Caterpillar define its "Construction Industries" segment?
+- Based solely on the provided 10-K filings, Caterpillar defines its Construction Industries segment as:
+
+Primary responsibility: Supporting customers using machinery in infrastructure and building construction applications.
+Key responsibilities: Business strategy, product design, product management and development, manufacturing, marketing and sales, and product support.
+Product portfolio: Includes asphalt pavers, backhoe loaders, cold planers, compactors, compact track loaders, forestry machines, material handlers, motor graders, pipelayers, road reclaimers, skid steer loaders, telehandlers, track-type loaders, track-type tractors (small, medium), track excavators (mini, small, medium, large), wheel excavators, wheel loaders (compact, small, medium), and related parts and work tools.
+Revenue source: Inter-segment sales are a source of revenue for this segment.
+This information is drawn from Source 2 (which states the primary responsibility) and Source 4 (which provides the detailed responsibilities and product portfolio).
+
+8. What was JPMorgan Chase's total net income in their most recent fiscal year?
+- Based on JPMorgan Chase's 2025 Form 10-K, the total net income for the most recent fiscal year (ended December 31, 2025) was $57,048 million.
+
+Source:
+
+JPMorgan Chase & Co. / 2025 Form 10-K, Three-Year Summary of Consolidated Financial Highlights (unaudited) – "Net income" column for 2025: $57,048 million.
+JPMorgan Chase & Co. / 2025 Form 10-K, Consolidated Statements of Income – "Net income" for 2025: $57,048 million.
+
+9. What was Apple's total operating expenses for 2025?
+- Based on the provided 10-K filing for Apple Inc. (fiscal year 2025), total operating expenses for 2025 were $62,151 million.
+
+Source: This figure is explicitly listed in the "Operating Expenses" table found in Source 1 (Excerpt from aapl-20250927.pdf, page 24) and reiterated in Source 5 (page 23). The table shows:
+
+2025	Change	2024	Change	2023
+Research and development	$34,550	10%	$31,370	5%	$29,915
+Selling, general and administrative	$27,601	6%	$26,097	5%	$24,932
+Total operating expenses	$62,151	8%	$57,467	5%	$54,847
+
+10. What was Walmart's total net sales specifically for the "Walmart International" segment in fiscal 2026?
+- Walmart International's total net sales for fiscal 2026 were **130,423 million** (or 130.4 billion). This figure is taken from the Walmart International net sales table in the filing.¹
+
+
+
+-------------------------------------
+Category 2: Cross-Company Comparisons
+-------------------------------------
+I Set UI dropdown to "All Companies" for these tests.
+
+11. Which company reported a higher total revenue in their most recent fiscal year: NVIDIA or Walmart?
+- Walmart reported higher total revenue in its most recent fiscal year.
+
+NVIDIA (year ended January 25, 2026): total revenue of $215,938 million (see Source 2 – Consolidated Statements of Income).
+Walmart (fiscal year ended January 31, 2026): total revenues of **713,163million**(706,413 million net sales + $6,750 million membership and other income, per Source 5 – Consolidated segment information).
+Therefore, Walmart’s total revenue is significantly higher than NVIDIA’s.
+
+12. Compare the total Research and Development (R&D) expenses of Apple and NVIDIA for their respective reported years.
+- Based solely on the provided context, here is the comparison of total Research and Development (R&D) expenses for Apple and NVIDIA:
+
+Company	Most Recent Fiscal Year	R&D Expense (in millions)
+Apple (AAPL)	Fiscal 2025 (ended September 27, 2025)	$34,550
+NVIDIA (NVDA)	Fiscal 2026 (ended January 25, 2026)	$18,497
+Apple’s R&D expense for 2025 was $34,550 million, as reported in Source 1 and Source 3 (Apple 10-K, page 24).
+NVIDIA’s R&D expense for its fiscal year ended January 25, 2026 was $18,497 million, as shown in Source 2 (NVIDIA 10-K, Consolidated Statements of Income).
+Note: The fiscal years differ; Apple’s 2025 ended in September 2025, while NVIDIA’s 2026 ended in January 2026. Apple’s R&D spend was approximately 1.87 times that of NVIDIA in their respective latest reported periods
+
+13. Which of the six companies in this corpus is a banking/financial institution, and what is its stock ticker?
+- Based solely on the provided context, the only company referenced is JPMorgan Chase & Co., which is a financial holding company and a leading financial services firm. Its stock ticker is JPM (listed on the NYSE).
+
+14. Based strictly on the filings, contrast the core business models of Caterpillar and Coca-Cola.
+- Based strictly on the provided filings, the core business models of Caterpillar and Coca-Cola contrast as follows:
+
+Caterpillar (CAT) operates through two reportable segments: Machinery, Power & Energy and Financial Products.
+
+The Machinery, Power & Energy segment is primarily engaged in the design, manufacturing and marketing of heavy equipment and power systems (Source 3).
+The Financial Products segment provides financing and insurance to customers and dealers for the purchase and lease of Caterpillar and other equipment (Source 3).
+The company sells most products through a global dealer network, with some direct sales of turbines and locomotives (Source 4). Its business model thus combines industrial manufacturing with integrated financing.
+Coca-Cola (KO) is a total beverage company whose business is primarily nonalcoholic beverages (Source 5). The company generates revenue from two types of operations (Source 2):
+
+Concentrate operations – manufacturing and selling beverage concentrates and syrups to bottling partners. These operations account for about 59% of net revenues and yield higher gross profit margins but lower absolute revenue per unit.
+Finished product operations – manufacturing and selling finished beverages (through consolidated bottling operations). These account for about 41% of net revenues and yield lower gross profit margins but higher absolute revenues.
+The company’s segment structure includes geographic operating segments (EMEA, Latin America, North America, Asia Pacific) and a Bottling Investments segment for its consolidated bottlers (Source 2). The core business model relies on a brand‑licensing, concentrate‑based system complemented by direct bottling.
+Key Contrast:
+
+Caterpillar’s model is industrial manufacturing + captive financial services to support equipment sales.
+Coca-Cola’s model is branded beverage concentrates + finished product bottling, with concentrate sales being the higher‑margin core.
+
+--------------------------------------
+Category 3: Out-of-Corpus & Honesty
+-------------------------------------
+
+15. What was Tesla's total automotive revenue in 2025?
+- I don't know. The requested information is not available in the provided 10-K filings.
+
+16. Compare Walmart's revenue to Target's revenue for 2026.
+- I don't know. The requested information is not available in the provided 10-K filings.
+
+17. Who is the current CEO of Amazon?
+- I don't know. The requested information is not available in the provided 10-K filings.
+
+18. What was the GDP growth rate of the United States in 2025?
+- I don't know. The requested information is not available in the provided 10-K filings.
+
+---------------------------------------
+Category 4: Complex / Deliberate Failure Candidates
+----------------------------------------
+
+19. What was the exact percentage point change in Apple's "Services" gross margin from 2024 to 2025, and what two reasons drove that change?
+- Based on Apple's 2025 Form 10‑K, the Services gross margin percentage increased by 1.5 percentage points (from 73.9% in 2024 to 75.4% in 2025). This change was driven by:
+
+A different mix of services (which boosted the margin)
+Higher costs (which partially offset the increase)
+Source: AAPL 2025 10‑K, Source 1 (Gross Margin table and accompanying narrative).
+
+20. Which of the six companies explicitly lists 'artificial intelligence' as a material risk to their business operations in their Risk Factors section?
+- Based solely on the provided context, only three companies' 10-K excerpts are available: NVDA, AAPL, and WMT. All three explicitly list "artificial intelligence" as a material risk to their business operations in their Risk Factors sections.
+
+NVDA (Source 1): "Issues relating to the responsible use of our technologies, including AI in our offerings, may result in reputational or financial harm and liability." Also discusses AI risks related to legal, social, and ethical issues.
+AAPL (Source 3): "The introduction of new and complex technologies, such as artificial intelligence features, can increase these and other safety risks..." Further mentions AI risks in Source 4 regarding intellectual property claims.
+WMT (Source 5): "misuse of AI technologies, inaccurate, biased or otherwise flawed AI search and discovery results... could quickly erode trust and confidence in our business..."
+The context does not contain filings for any other companies, so the requested information for "six companies" cannot be fully evaluated.
+
+----------------------------------------------------------------------------------------------------
+But the problem here is that it fetched only from the three companies that it has answered, the top 5 chunks only contained these and it might be wrong as the other 3 might also have mentioned AI as a risk but that context was never passed.
+----------------------------------------------------------------------------------------------------
+
+21. Which of these companies reported the highest revenue for the fiscal year 2025?
+- Based on the provided 10-K filings, JPMorgan Chase (JPM) reported the highest revenue for the fiscal year 2025.
+
+JPMorgan Chase (JPM) reported total net revenue of $182,447 million for the year ended December 31, 2025 (Source 1: JPM 10-K, Total net revenue line).
+Caterpillar (CAT) reported sales and revenues of **67.589billion∗∗(67,589 million) for the year ended December 31, 2025 (Source 5: CAT 10-K, Highlights).
+Therefore, JPMorgan Chase’s revenue of 182.447billionexceedsCaterpillar’s67.589 billion.
+
+-------------------------------------------------------------------------------------------------------------------
+Here again it just fetched the top 5 chunks from JPM and CAT and the rest were not a part of the retrieved context
+-------------------------------------------------------------------------------------------------------------------
