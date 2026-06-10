@@ -1,0 +1,11 @@
+# Virtual environment
+venv/
+__pycache__/
+*.pyc
+
+# Local databases and environment variables
+.env
+chroma_db/
+
+# Data files (keep the repository lightweight)
+data/
