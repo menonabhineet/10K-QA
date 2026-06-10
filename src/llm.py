@@ -1,6 +1,6 @@
 from openai import OpenAI
-from config import DEEPSEEK_API_KEY, DEEPSEEK_BASE_URL, LLM_MODEL
-from search import retrieve_context
+from src.config import DEEPSEEK_API_KEY, DEEPSEEK_BASE_URL, LLM_MODEL
+from src.search import retrieve_context
 
 # Initialize the OpenAI client configured to point to DeepSeek's API endpoint
 client = OpenAI(
@@ -18,21 +18,18 @@ Strict Operational Rules:
 
 Format your output professionally using markdown."""
 
-def generate_grounded_answer(query: str, company_filter: str = None):
+def generate_grounded_answer(query: str, context: str, company_filter: str = None):
     """
     Retrieves context from the vector DB, structures the prompt, 
     and yields a stream of responses from the DeepSeek model.
-    """
-    # 1. Retrieve relevant source passages
-    context = retrieve_context(query, top_k=5, company_filter=company_filter)
-    
-    # 2. Structure messages for the model
+    """ 
+    # Structure messages for the model
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": f"Context Chunks:\n{context}\n\nUser Question: {query}"}
     ]
     
-    # 3. Request a streaming response for a real-time chat feel
+    # Request a streaming response for a real-time chat feel
     response_stream = client.chat.completions.create(
         model=LLM_MODEL,
         messages=messages,

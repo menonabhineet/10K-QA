@@ -1,6 +1,6 @@
 import chromadb
 from chromadb.utils import embedding_functions
-from config import CHROMA_DB_DIR, EMBEDDING_MODEL
+from src.config import CHROMA_DB_DIR, EMBEDDING_MODEL
 
 # Initialize the database client and embedding function once
 # so we don't reload the model on every single query
