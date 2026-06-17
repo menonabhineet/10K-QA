@@ -2,12 +2,13 @@ import chromadb
 from chromadb.utils import embedding_functions
 from src.config import CHROMA_DB_DIR, EMBEDDING_MODEL
 
-# Initialize the database client and embedding function once
-# so we don't reload the model on every single query
+# Initialize database client and local embedding engine
 client = chromadb.PersistentClient(path=str(CHROMA_DB_DIR))
 embedding_func = embedding_functions.SentenceTransformerEmbeddingFunction(
     model_name=EMBEDDING_MODEL
 )
+
+ALL_COMPANIES = ["AAPL", "CAT", "JPM", "KO", "NVDA", "WMT"]
 
 try:
     collection = client.get_collection(
@@ -15,59 +16,72 @@ try:
         embedding_function=embedding_func
     )
 except ValueError:
-    print("Error: Collection not found. Did you run the ingestion script?")
+    print("Error: Collection not found. Ensure ingestion was run successfully.")
     collection = None
 
-def retrieve_context(query: str, top_k: int = 5, company_filter: str = None) -> str:
+def retrieve_context_multi(query: str, target_tickers: list) -> str:
     """
-    Searches the vector database for chunks most similar to the query.
-    Optionally filters by a specific company ticker.
-    Returns a formatted string of the context to inject into the LLM prompt.
+    Retrieves chunks with dynamic context allocation:
+    - If 1 company is targeted: fetches top_k=5 chunks.
+    - If multiple companies or ALL are targeted: loops through each target 
+      and fetches top_k=3 chunks per company to prevent context starvation.
     """
     if collection is None:
         return "System Error: Database not initialized."
 
-    # Prepare search parameters
-    search_params = {
-        "query_texts": [query],
-        "n_results": top_k,
-    }
-    
-    # If we want to restrict search to a specific company, we use ChromaDB's where filter
-    if company_filter:
-        search_params["where"] = {"company": company_filter.upper()}
+    # If the router or UI specifies a global search across all entities
+    if not target_tickers or "ALL" in target_tickers:
+        tickers_to_search = ALL_COMPANIES
+        chunks_per_company = 3
+    else:
+        # Clean and filter input tickers to match our valid corpus
+        tickers_to_search = [t.upper() for t in target_tickers if t.upper() in ALL_COMPANIES]
+        # Apply the rule: 5 chunks for a single company lookup, 3 chunks per company for multi-comparisons
+        chunks_per_company = 5 if len(tickers_to_search) == 1 else 3
 
-    # Execute the search
-    results = collection.query(**search_params)
+    # If no valid tickers resolved, fall back to global search space
+    if not tickers_to_search:
+        tickers_to_search = ALL_COMPANIES
+        chunks_per_company = 3
 
-    # If nothing is found, return an empty context
-    if not results['documents'] or not results['documents'][0]:
-        return ""
-
-    # Format the retrieved chunks into a clean, readable string with citations
     formatted_context = ""
-    documents = results['documents'][0]
-    metadatas = results['metadatas'][0]
+    source_counter = 1
 
-    for i, (doc, meta) in enumerate(zip(documents, metadatas)):
-        company = meta.get("company", "UNKNOWN")
-        source_file = meta.get("source_file", "Unknown File")
+    # Execute deterministic, isolated vector searches per company
+    for ticker in tickers_to_search:
+        search_params = {
+            "query_texts": [query],
+            "n_results": chunks_per_company,
+            "where": {"company": ticker}
+        }
         
-        # We explicitly wrap the chunks in XML-like tags. 
-        # LLMs like DeepSeek respond very well to this structure for grounding.
-        formatted_context += f"\n--- Source {i+1} ---\n"
-        formatted_context += f"Company: {company}\n"
-        formatted_context += f"File: {source_file}\n"
-        formatted_context += f"Excerpt:\n{doc}\n"
-        formatted_context += "-" * 20 + "\n"
+        results = collection.query(**search_params)
+        
+        if not results['documents'] or not results['documents'][0]:
+            continue
+            
+        documents = results['documents'][0]
+        metadatas = results['metadatas'][0]
+
+        for doc, meta in zip(documents, metadatas):
+            company = meta.get("company", "UNKNOWN")
+            source_file = meta.get("source_file", "Unknown File")
+            
+            formatted_context += f"\n--- Source {source_counter} ---\n"
+            formatted_context += f"Company: {company}\n"
+            formatted_context += f"File: {source_file}\n"
+            formatted_context += f"Excerpt:\n{doc}\n"
+            formatted_context += "-" * 20 + "\n"
+            source_counter += 1
 
     return formatted_context
 
-# Quick test block to ensure it works
+# Local execution test
 if __name__ == "__main__":
-    test_query = "What was the total revenue for Apple?"
-    print(f"Testing search for: '{test_query}'\n")
-    
-    # Notice we can filter exactly to 'AAPL' metadata to improve accuracy
-    context = retrieve_context(test_query, top_k=3, company_filter="AAPL")
-    print(context)
+    print("Testing single-company routing (Should yield 5 chunks):")
+    ctx_single = retrieve_context_multi("What was Apple's total net sales?", ["AAPL"])
+    print(f"Total sources fetched: {ctx_single.count('--- Source')}\n")
+
+    print("Testing multi-company comparison routing (Should yield 3 chunks per company -> 6 total):")
+    ctx_multi = retrieve_context_multi("Compare R&D for Apple and NVIDIA", ["AAPL", "NVDA"])
+    print(f"Total sources fetched: {ctx_multi.count('--- Source')}\n")

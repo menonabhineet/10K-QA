@@ -1,21 +1,17 @@
 import streamlit as st
-from src.search import retrieve_context
-from src.llm import generate_grounded_answer
+from src.llm import generate_grounded_answer_dynamic
 
-# Page Configuration
 st.set_page_config(
     page_title="10-K Financial QA Bot",
     layout="centered"
 )
 
-# Application Header
 st.title("10-K Financial Assistant")
 st.markdown(
     "Query parsed SEC 10-K filings using layout-aware retrieval. "
-    "Select a specific company to apply strict metadata filtering."
+    "Select a specific company to apply strict metadata filtering or select 'All Companies' to activate dynamic intent routing."
 )
 
-# Sidebar Configuration for Filtering
 st.sidebar.header("Search Filters")
 company_options = {
     "All Companies": None,
@@ -34,15 +30,14 @@ st.sidebar.markdown("---")
 st.sidebar.markdown(
     "### System Specs\n"
     "- **LLM:** `deepseek-v4-flash`\n"
+    "- **Intent Routing:** Dynamic Multi-Query\n"
     "- **Vector DB:** ChromaDB (Embedded)\n"
     "- **Embeddings:** `all-MiniLM-L6-v2`"
 )
 
-# Initialize Chat History in Session State
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Display Existing Chat History
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
@@ -50,28 +45,22 @@ for message in st.session_state.messages:
             with st.expander("🔍 View Verifiable Source Passages"):
                 st.text(message["context"])
 
-# Accept User Input
-if user_query := st.chat_input("Ask a question about the filings (e.g., What was Apple's R&D spend in 2025?)"):
+if user_query := st.chat_input("Ask a cross-company question or single lookup..."):
     
-    # Append user message to history and render it
     st.session_state.messages.append({"role": "user", "content": user_query})
     with st.chat_message("user"):
         st.markdown(user_query)
 
-    # Generate Response
     with st.chat_message("assistant"):
-        # 1. Fetch chunks visibly with a clean loading spinner
-        with st.spinner("Searching document corpus..."):
-            context = retrieve_context(user_query, top_k=5, company_filter=company_filter)
+        with st.spinner("Analyzing intent and pulling context..."):
+            # Call our dynamic orchestration pipeline
+            response_stream, context = generate_grounded_answer_dynamic(user_query, ui_filter=company_filter)
         
         response_placeholder = st.empty()
         
         try:
-            # 2. Run the streaming generation engine
-            response_stream = generate_grounded_answer(user_query, context)
             full_response = st.write_stream(response_stream)
             
-            # 3. Surface raw passages under the stream for explicit verification
             if context:
                 with st.expander("🔍 View Verifiable Source Passages"):
                     st.text(context)
