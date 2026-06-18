@@ -28,6 +28,14 @@ Rules:
 3. Do not answer the question. ONLY output the rewritten query.
 4. Do not include conversational filler, formatting, or quotes."""
 
+SUGGESTION_PROMPT = """You are an expert financial analyst guiding a user through complex SEC 10-K filings. 
+Based on the retrieved context and the answer you just provided, generate exactly 3 highly relevant, insightful follow-up questions the user should ask to dive deeper into the topic.
+
+Rules:
+1. Ensure the questions are distinct from one another.
+2. Output ONLY a valid JSON list of 3 strings. Do not include markdown blocks, numbering, or conversational filler.
+Example: ["How did their R&D spend impact this?", "What are the key risk factors associated with this growth?", "Compare this margin to their competitors."]"""
+
 SYSTEM_PROMPT = """You are an expert, precision-focused financial analyst chatbot. Your task is to answer user questions about specific SEC 10-K filings using ONLY the provided context blocks.
 
 Strict Operational Rules:
@@ -137,3 +145,34 @@ def generate_grounded_answer_dynamic(query: str, ui_filter: str = None, chat_his
     
     # Yield both the token stream and the generated context string for the UI expander
     return response_stream, context
+
+def generate_suggested_questions(answer: str, context: str) -> list:
+    """
+    Analyzes the generated answer and context to suggest 3 contextual follow-up questions.
+    """
+    # If there was no context (e.g., an out-of-corpus question), don't suggest questions
+    if not context or "I don't know" in answer:
+        return []
+        
+    prompt_content = f"Context:\n{context}\n\nGenerated Answer:\n{answer}\n\nGenerate 3 follow-up questions as a JSON list:"
+    
+    try:
+        response = client.chat.completions.create(
+            model=LLM_MODEL,
+            messages=[
+                {"role": "system", "content": SUGGESTION_PROMPT},
+                {"role": "user", "content": prompt_content}
+            ],
+            temperature=0.7 # Slight temperature increase for question variety
+        )
+        
+        raw_output = response.choices[0].message.content.strip()
+        if raw_output.startswith("```"):
+            raw_output = raw_output.split("\n")[1:-1]
+            raw_output = "".join(raw_output).strip()
+            
+        questions = json.loads(raw_output)
+        return questions[:3] if isinstance(questions, list) else []
+    except Exception as e:
+        print(f"DEBUG - Suggestion generation failed: {str(e)}")
+        return []

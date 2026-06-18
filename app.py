@@ -1,5 +1,5 @@
 import streamlit as st
-from src.llm import generate_grounded_answer_dynamic
+from src.llm import generate_grounded_answer_dynamic, generate_suggested_questions
 
 st.set_page_config(
     page_title="10-K Financial QA Bot",
@@ -38,26 +38,44 @@ st.sidebar.markdown(
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-for message in st.session_state.messages:
+for idx, message in enumerate(st.session_state.messages):
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
-        if message["role"] == "assistant" and message.get("context"):
-            with st.expander("🔍 View Verifiable Source Passages"):
-                st.text(message["context"])
+        
+        if message["role"] == "assistant":
+            # Render context expander
+            if message.get("context"):
+                with st.expander("🔍 View Verifiable Source Passages"):
+                    st.text(message["context"])
+            
+            # --- NEW: RENDER SUGGESTED QUESTIONS (Only on the latest message) ---
+            if idx == len(st.session_state.messages) - 1 and message.get("suggestions"):
+                st.markdown("**Suggested Follow-ups:**")
+                for q in message["suggestions"]:
+                    # Create a unique key for each button to prevent Streamlit rendering errors
+                    if st.button(q, key=f"btn_sugg_{idx}_{q}"):
+                        st.session_state.triggered_suggestion = q
+                        st.rerun()
 
-if user_query := st.chat_input("Ask a cross-company question or single lookup..."):
-    
-    # Capture the existing conversation history to pass to the rewriter
-    history_to_pass = [msg for msg in st.session_state.messages]
-    
+
+# Determine if the query is coming from a typed input or a clicked suggestion button
+if "triggered_suggestion" in st.session_state:
+    user_query = st.session_state.triggered_suggestion
+    del st.session_state.triggered_suggestion # Clear it after grabbing
+else:
+    user_query = st.chat_input("Ask a cross-company question or single lookup...")
+
+# Capture the history before appending the new message
+history_to_pass = [msg for msg in st.session_state.messages]
+
+if user_query:
     st.session_state.messages.append({"role": "user", "content": user_query})
+    
     with st.chat_message("user"):
         st.markdown(user_query)
 
     with st.chat_message("assistant"):
         with st.spinner("Analyzing intent and pulling cross-company context..."):
-            
-            # Pass the history_to_pass argument into your pipeline
             response_stream, context = generate_grounded_answer_dynamic(
                 query=user_query, 
                 ui_filter=company_filter,
@@ -73,11 +91,18 @@ if user_query := st.chat_input("Ask a cross-company question or single lookup...
                 with st.expander("🔍 View Verifiable Source Passages"):
                     st.text(context)
             
+            with st.spinner("Thinking of next steps..."):
+                suggestions = generate_suggested_questions(full_response, context)
+            
             st.session_state.messages.append({
                 "role": "assistant", 
                 "content": full_response,
-                "context": context
+                "context": context,
+                "suggestions": suggestions # Save suggestions to state
             })
+            
+            # Force a UI refresh to draw the new buttons beneath the message
+            st.rerun()
             
         except Exception as e:
             st.error(f"An error occurred connecting to the inference engine: {str(e)}")
