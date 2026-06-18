@@ -47,14 +47,22 @@ for message in st.session_state.messages:
 
 if user_query := st.chat_input("Ask a cross-company question or single lookup..."):
     
+    # Capture the existing conversation history to pass to the rewriter
+    history_to_pass = [msg for msg in st.session_state.messages]
+    
     st.session_state.messages.append({"role": "user", "content": user_query})
     with st.chat_message("user"):
         st.markdown(user_query)
 
     with st.chat_message("assistant"):
-        with st.spinner("Analyzing intent and pulling context..."):
-            # Call our dynamic orchestration pipeline
-            response_stream, context = generate_grounded_answer_dynamic(user_query, ui_filter=company_filter)
+        with st.spinner("Analyzing intent and pulling cross-company context..."):
+            
+            # Pass the history_to_pass argument into your pipeline
+            response_stream, context = generate_grounded_answer_dynamic(
+                query=user_query, 
+                ui_filter=company_filter,
+                chat_history=history_to_pass
+            )
         
         response_placeholder = st.empty()
         

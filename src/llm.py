@@ -20,6 +20,14 @@ Rules:
 
 You must output ONLY a valid JSON list of strings. Do not include markdown formatting, backticks, block formatting, or conversational prose."""
 
+REWRITE_PROMPT = """You are a precise query rewriting agent. Your job is to take a user's latest question and rewrite it into a fully standalone search query, using the provided conversation history to resolve any pronouns (like "they", "it", "their") or missing context.
+
+Rules:
+1. If the latest question is already fully self-contained (e.g., "What was Apple's revenue in 2025?"), output it exactly as is.
+2. If the latest question relies on history (e.g., "What about their net income?"), combine it with the previous context (e.g., "What was Apple's net income in 2025?").
+3. Do not answer the question. ONLY output the rewritten query.
+4. Do not include conversational filler, formatting, or quotes."""
+
 SYSTEM_PROMPT = """You are an expert, precision-focused financial analyst chatbot. Your task is to answer user questions about specific SEC 10-K filings using ONLY the provided context blocks.
 
 Strict Operational Rules:
@@ -29,6 +37,43 @@ Strict Operational Rules:
 4. TABLE LITERACY: The context contains tables where columns represent years or categories. Match rows and columns carefully to extract exact figures.
 
 Format your output professionally using markdown."""
+
+def rewrite_query_with_history(query: str, chat_history: list) -> str:
+    """
+    Uses the chat history to resolve pronouns and output a standalone search string.
+    """
+    # If this is the very first question, no rewrite is needed
+    if not chat_history:
+        return query
+    
+    # Format the history cleanly so the LLM doesn't get overwhelmed by massive context chunks
+    history_text = ""
+    
+    # We only need the last 4 interactions to establish conversational context
+    recent_history = chat_history[-4:] 
+    for msg in recent_history:
+        role = "User" if msg["role"] == "user" else "Assistant"
+        # Truncate long assistant responses to just the first 200 characters to keep latency ultra-low
+        content = msg["content"][:200] + "..." if len(msg["content"]) > 200 else msg["content"]
+        history_text += f"{role}: {content}\n"
+
+    prompt_content = f"Conversation History:\n{history_text}\n\nLatest User Question: {query}\n\nRewritten Query:"
+    
+    try:
+        response = client.chat.completions.create(
+            model=LLM_MODEL,
+            messages=[
+                {"role": "system", "content": REWRITE_PROMPT},
+                {"role": "user", "content": prompt_content}
+            ],
+            temperature=0.0
+        )
+        rewritten_query = response.choices[0].message.content.strip()
+        print(f"DEBUG - Raw Query: '{query}' | Rewritten: '{rewritten_query}'")
+        return rewritten_query
+    except Exception as e:
+        print(f"Query rewrite failed: {str(e)}. Falling back to original query.")
+        return query
 
 def route_query(query: str) -> list:
     """
@@ -62,28 +107,25 @@ def route_query(query: str) -> list:
         print(f"Routing error encountered: {str(e)}. Falling back to comprehensive search.")
         return ["ALL"]
 
-def generate_grounded_answer_dynamic(query: str, ui_filter: str = None):
-    """
-    Orchestrates the entire RAG pipeline:
-    1. Determines whether to route dynamically or respect a hard UI filter.
-    2. Fetches layout-aware context chunks with dynamic context allocation.
-    3. Streams the verified response back along with the raw source context.
-    """
-    # Step 1: Resolve targets
+def generate_grounded_answer_dynamic(query: str, ui_filter: str = None, chat_history: list = None):
+    # Step 1: Pre-process the query using conversational memory
+    standalone_query = rewrite_query_with_history(query, chat_history) if chat_history else query
+    
+    # Step 2: Resolve targets using the NEW STANDALONE query
     if ui_filter:
         targets = [ui_filter]
     else:
-        targets = route_query(query)
+        targets = route_query(standalone_query)
         
     print(f"DEBUG - Query routed to database partitions: {targets}")
     
-    # Step 2: Fetch precisely allocated text chunks
-    context = retrieve_context_multi(query, target_tickers=targets)
+    # Step 3: Fetch precisely allocated text chunks using the STANDALONE query
+    context = retrieve_context_multi(standalone_query, target_tickers=targets)
     
-    # Step 3: Run streaming generation loop
+    # Step 4: Run streaming generation loop using the STANDALONE query
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": f"Context Chunks:\n{context}\n\nUser Question: {query}"}
+        {"role": "user", "content": f"Context Chunks:\n{context}\n\nUser Question: {standalone_query}"}
     ]
     
     response_stream = client.chat.completions.create(
